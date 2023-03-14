@@ -1,5 +1,5 @@
 public class Computing {
-    private int type;
+
 
     private CPU FCFS = new CPU(0);
     private CPU SJF = new CPU(1);
@@ -15,29 +15,31 @@ public class Computing {
     private Process testProcess4 = new Process(250);
     private Process testProcess5 = new Process(750);
 
-    public Computing(int type){
+    private SchedulingType type;
+
+    public Computing(SchedulingType type) {
         this.type = type;
     }
 
     public void testCPU(){
         CPU test = null;
         switch(type){
-            case 0:{
+            case FCFS:{
                 test = FCFS;
                 System.out.println("For FCFS:");
                 break;
             }
-            case 1:{
+            case SJF:{
                 test = SJF;
                 System.out.println("For SJF:");
                 break;
             }
-            case 2:{
+            case SRTF:{
                 test = SRTF;
                 System.out.println("For SRTF:");
                 break;
             }
-            case 3:{
+            case RR:{
                 test = RR;
                 System.out.println("For RR:");
                 break;
