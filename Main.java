@@ -5,7 +5,6 @@ public class Main {
         Computing computingSJF = new Computing(SchedulingType.SJF);
         Computing computingSRTF = new Computing(SchedulingType.SRTF);
         Computing computingRR = new Computing(SchedulingType.RR);
-
         computingFCFS.testCPU();
         computingSJF.testCPU();
         computingSRTF.testCPU();

@@ -2,75 +2,83 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CPU {
-    private int type;
-    private final List<Process> proces = new ArrayList<>();
+    private SchedulingType type;
+    private final List<Process> processes = new ArrayList<>();
     private Process currentProcess = null;
-    private int rrTimer = 1000;
-    private static int rrMaxTimer = 1000;
+    private int remainingTimeForCurrent = 1000;
 
-    public CPU(int type){
+    public CPU(SchedulingType type){
         this.type = type;
     }
-    /* Types:
-    0 -> First Come First Serve FCFS
-    1 -> Shortest Job First SJF
-    2 -> Shortest Remaining Time First SRTF
-    3 -> Round Robin RR
-    */
     public void addProcess(Process process){
-        this.proces.add(process);
+        this.processes.add(process);
         if(currentProcess == null){
             currentProcess = process;
         }
-        if(type == 2){
+        if(type == SchedulingType.SRTF){
             currentProcess = reconsiderProcesses();
         }
+        /*Metoda addProcess wprost sprawdza tylko typ harmonogramowania SRTF, ponieważ jest to jedyny typ
+         harmonogramowania, który wymaga specjalnej akcji po dodaniu nowego procesu.
+         W SRTF (Shortest Remaining Time First), aktualnie działający
+        proces może zostać przerwany (zatrzymany), aby rozpocząć nowy proces z krótszym pozostałym czasem wykonania.*/
     }
 
-    public void doRunProcess(int timeQuantum){
+    public void runProcess(int quantTime){
+        /*Funkcja runProcess jest częścią algorytmu planowania procesów, Kwantd czasu odnosi się do czasu, który jest przydzielony
+         każdemu procesowi na wykonywanie w jednym cyklu planowania. W tej funkcji, quantTime to argument wejściowy,
+          który reprezentuje kwant czasu.
+          W funkcji runProcess, kwant czasu jest używany do zmniejszenia pozostałego czasu bieżącego procesu.
+          Oznacza to, że każdy proces jest wykonywany przez określony kwant czasu, a następnie jest przerywany
+          i przechodzi do kolejnego procesu w kolejce, jeśli istnieją jeszcze procesy, które czekają na wykonanie.
+
+            Jeśli natomiast algorytmem szeregowania jest Round Robin (RR), to po zakończeniu kwantu czasu, sprawdzane jest,
+            czy czas wykonania obecnie uruchomionego procesu nie przekroczył maksymalnego czasu jednego "obiegu"
+            (w tym przypadku 1000 jednostek czasu). Jeśli czas wykonania przekroczył ten limit,
+            to obecny proces jest usuwany z listy procesów i
+            dodawany z powrotem na jej koniec, a następnie wybierany jest kolejny proces z listy jako nowy obecnie uruchamiany proces.
+
+*/
         if(currentProcess == null)
             return;
-        currentProcess.remaining_time -=timeQuantum;
-        for(Process temp : proces){
+        currentProcess.remaining_time -= quantTime;
+        for(Process temp : processes){
             if(temp != currentProcess)
-                temp.waiting_time+=timeQuantum;
+                temp.waiting_time += quantTime;
         }
         if(currentProcess.remaining_time <=0) {
-            proces.remove(currentProcess);
+            processes.remove(currentProcess);
             currentProcess = reconsiderProcesses();
         }
-        if(type == 3){
-            rrTimer -= timeQuantum;
-            if(rrTimer <= 0){
-                proces.remove(currentProcess);
-                proces.add(currentProcess);
-                currentProcess = proces.get(0);
-                rrTimer = rrMaxTimer;
+        if(type == SchedulingType.RR){
+            remainingTimeForCurrent -= quantTime;
+            if(remainingTimeForCurrent <= 0){
+                processes.remove(currentProcess);
+                processes.add(currentProcess);
+                currentProcess = processes.get(0);
+                remainingTimeForCurrent = 1000;
             }
         }
     }
 
     private Process reconsiderProcesses(){
-        if(proces.size() == 0)
+        if(processes.size() == 0)
             return null;
-        Process newCurrentProcess = proces.get(0);
-        switch (type){
-            case 0,3:{
-                break;
+        Process newCurrentProcess = processes.get(0);
+        switch (type) {
+            case FCFS, RR -> {
             }
-            case 1:{
-                for(Process temp : proces){
-                    if(temp.total_time < newCurrentProcess.total_time)
+            case SJF -> {
+                for (Process temp : processes) {
+                    if (temp.total_time < newCurrentProcess.total_time)
                         newCurrentProcess = temp;
                 }
-                break;
             }
-            case 2:{
-                for(Process temp : proces){
-                    if(temp.remaining_time < newCurrentProcess.remaining_time)
+            case SRTF -> {
+                for (Process temp : processes) {
+                    if (temp.remaining_time < newCurrentProcess.remaining_time)
                         newCurrentProcess = temp;
                 }
-                break;
             }
         }
         return newCurrentProcess;
