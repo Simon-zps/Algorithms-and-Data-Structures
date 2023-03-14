@@ -1,14 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Processor {
+public class CPU {
     private int type;
-    private List<Process> processes = new ArrayList<>();
+    private final List<Process> proces = new ArrayList<>();
     private Process currentProcess = null;
     private int rrTimer = 1000;
     private static int rrMaxTimer = 1000;
 
-    public Processor(int type){
+    public CPU(int type){
         this.type = type;
     }
     /* Types:
@@ -18,7 +18,7 @@ public class Processor {
     3 -> Round Robin RR
     */
     public void addProcess(Process process){
-        processes.add(process);
+        this.proces.add(process);
         if(currentProcess == null){
             currentProcess = process;
         }
@@ -30,44 +30,44 @@ public class Processor {
     public void doRunProcess(int timeQuantum){
         if(currentProcess == null)
             return;
-        currentProcess.remaining_duration-=timeQuantum;
-        for(Process temp : processes){
+        currentProcess.remaining_time -=timeQuantum;
+        for(Process temp : proces){
             if(temp != currentProcess)
                 temp.waiting_time+=timeQuantum;
         }
-        if(currentProcess.remaining_duration<=0) {
-            processes.remove(currentProcess);
+        if(currentProcess.remaining_time <=0) {
+            proces.remove(currentProcess);
             currentProcess = reconsiderProcesses();
         }
         if(type == 3){
             rrTimer -= timeQuantum;
             if(rrTimer <= 0){
-                processes.remove(currentProcess);
-                processes.add(currentProcess);
-                currentProcess = processes.get(0);
+                proces.remove(currentProcess);
+                proces.add(currentProcess);
+                currentProcess = proces.get(0);
                 rrTimer = rrMaxTimer;
             }
         }
     }
 
     private Process reconsiderProcesses(){
-        if(processes.size() == 0)
+        if(proces.size() == 0)
             return null;
-        Process newCurrentProcess = processes.get(0);
+        Process newCurrentProcess = proces.get(0);
         switch (type){
             case 0,3:{
                 break;
             }
             case 1:{
-                for(Process temp : processes){
-                    if(temp.total_duration< newCurrentProcess.total_duration)
+                for(Process temp : proces){
+                    if(temp.total_time < newCurrentProcess.total_time)
                         newCurrentProcess = temp;
                 }
                 break;
             }
             case 2:{
-                for(Process temp : processes){
-                    if(temp.remaining_duration< newCurrentProcess.remaining_duration)
+                for(Process temp : proces){
+                    if(temp.remaining_time < newCurrentProcess.remaining_time)
                         newCurrentProcess = temp;
                 }
                 break;
