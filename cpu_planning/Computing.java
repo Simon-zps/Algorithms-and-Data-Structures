@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Computing {
 
-
+    private final int numberOfProcesses = 10;
+    private final int maxProcessTime = 1500;
+    private ArrayList<Process> processes = new ArrayList<>();
     private CPU FCFS = new CPU(SchedulingType.FCFS);
     private CPU SJF = new CPU(SchedulingType.SJF);
     private CPU SRTF = new CPU(SchedulingType.SRTF);
@@ -12,17 +15,6 @@ public class Computing {
     private int timer = 0;
     private int quantTime = 50;
 
-    private Process testProcess1 = new Process(450);
-    private Process testProcess2 = new Process(1250);
-    private Process testProcess3 = new Process(600);
-    private Process testProcess4 = new Process(250);
-    private Process testProcess5 = new Process(750);
-    private Process testProcess6 = new Process(1000);
-    private Process testProcess7 = new Process(800);
-    private Process testProcess8 = new Process(400);
-    private Process testProcess9 = new Process(1200);
-    private Process testProcess10 = new Process(300);
-
     private SchedulingType type;
 
     public Computing(SchedulingType type) {
@@ -30,6 +22,13 @@ public class Computing {
     }
 
     public void testCPU(){
+
+        Random random = new Random();
+
+        for (int i = 0; i < numberOfProcesses; i++) {
+            processes.add(new Process(random.nextInt(maxProcessTime)));
+        }
+
         CPU test = null;
         switch(type){
             case FCFS:{
@@ -55,81 +54,52 @@ public class Computing {
         }
 
         boolean doContinue = true;
-        while(doContinue){
-            if(timer == 0) {
+        while (doContinue) {
+            int processIndex = timer / 100;
+            if (timer % 100 == 0 && processIndex < processes.size()) {
                 assert test != null;
-                /*In the given code, assert test != null; is used to
-                check whether the test variable has been initialized or not.
-                If test is null, this line of code will cause an AssertionError,
-                which will stop the program's execution immediately.
-                This can be helpful in catching potential bugs early in the development process.*/
-                test.addProcess(testProcess1);
-            }
-            else if (timer == 100) {
-                assert test != null;
-                test.addProcess(testProcess2);
-            }
-            else if(timer == 200) {
-                assert test != null;
-                test.addProcess(testProcess3);
-            }
-            else if(timer == 300) {
-                assert test != null;
-                test.addProcess(testProcess4);
-            }
-            else if(timer == 400) {
-                assert test != null;
-                test.addProcess(testProcess5);
-            }
-            else if(timer == 500) {
-                assert test != null;
-                test.addProcess(testProcess6);
-            }
-            else if(timer == 600) {
-                assert test != null;
-                test.addProcess(testProcess7);
-            }
-            else if(timer == 700) {
-                assert test != null;
-                test.addProcess(testProcess8);
-            }
-            else if(timer == 800) {
-                assert test != null;
-                test.addProcess(testProcess9);
-            }
-            else if(timer == 900) {
-                assert test != null;
-                test.addProcess(testProcess10);
+                test.addProcess(processes.get(processIndex));
             }
 
             assert test != null;
             test.runProcess(quantTime);
             timer += quantTime;
-            if(testProcess5.remaining_time <= 0)
+
+            // You can choose an appropriate termination condition,
+            // for example, stop when all processes have completed
+            boolean allProcessesCompleted = true;
+            for (Process process : processes) {
+                if (process.remaining_time > 0) {
+                    allProcessesCompleted = false;
+                    break;
+                }
+            }
+
+            if (allProcessesCompleted) {
                 doContinue = false;
+            }
         }
 
-        int totalWaitTime = testProcess1.waiting_time + testProcess2.waiting_time + testProcess3.waiting_time + testProcess4.waiting_time + testProcess5.waiting_time;
-        double AVGwaitTime = totalWaitTime/5.0;
-        int totalDuration = testProcess1.total_time + testProcess2.total_time + testProcess3.total_time + testProcess4.total_time + testProcess5.total_time;
+        int totalWaitTime = 0;
+        int totalDuration = 0;
+        int numRelevantProcesses = 5;
+        for (int i = 0; i < numRelevantProcesses; i++) {
+            totalWaitTime += processes.get(i).waiting_time;
+            totalDuration += processes.get(i).total_time;
+        }
+
+        double AVGwaitTime = totalWaitTime / (double) numRelevantProcesses;
         int totalWorkTime = totalWaitTime + totalDuration;
-        double AVGworkTime = totalWorkTime/5.0; //tf to automate
+        double AVGworkTime = totalWorkTime / (double) numRelevantProcesses;
 
 
         System.out.println("Avg Waiting Time: " + AVGwaitTime + "ms");
         System.out.println("Avg Working Time: " + AVGworkTime + "ms");
 
 
-        System.out.println("Process 1 effectivness: " + testProcess1.total_time *1.0/(testProcess1.total_time + testProcess1.waiting_time));
-        System.out.println("Process 2 effectivness: " + testProcess2.total_time *1.0/(testProcess2.total_time + testProcess2.waiting_time));
-        System.out.println("Process 3 effectivness: " + testProcess3.total_time *1.0/(testProcess3.total_time + testProcess3.waiting_time));
-        System.out.println("Process 4 effectivness: " + testProcess4.total_time *1.0/(testProcess4.total_time + testProcess4.waiting_time));
-        System.out.println("Process 5 effectivness: " + testProcess5.total_time *1.0/(testProcess5.total_time + testProcess5.waiting_time));
-        System.out.println("Process 6 effectivness: " + testProcess6.total_time *1.0/(testProcess6.total_time + testProcess6.waiting_time));
-        System.out.println("Process 7 effectivness: " + testProcess7.total_time *1.0/(testProcess7.total_time + testProcess7.waiting_time));
-        System.out.println("Process 8 effectivness: " + testProcess8.total_time *1.0/(testProcess8.total_time + testProcess8.waiting_time));
-        System.out.println("Process 9 effectivness: " + testProcess9.total_time *1.0/(testProcess9.total_time + testProcess9.waiting_time));
-        System.out.println("Process 10 effectivness: " + testProcess10.total_time *1.0/(testProcess10.total_time + testProcess10.waiting_time));
+        for (int i = 0; i < processes.size(); i++) {
+            System.out.printf("Process %d effectiveness: %.3f%n", i + 1, processes.get(i).total_time * 1.0 / (processes.get(i).total_time + processes.get(i).waiting_time));
+        }
         System.out.println();
     }
 }

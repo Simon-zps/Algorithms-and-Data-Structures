@@ -19,18 +19,18 @@ public class CPU {
             currentProcess = reconsiderProcesses();
         }
         /*Metoda addProcess wprost sprawdza tylko typ harmonogramowania SRTF, ponieważ jest to jedyny typ
-         harmonogramowania, który wymaga specjalnej akcji po dodaniu nowego procesu.
-         W SRTF (Shortest Remaining Time First), aktualnie działający
-        proces może zostać przerwany (zatrzymany), aby rozpocząć nowy proces z krótszym pozostałym czasem wykonania.*/
+          harmonogramowania, który wymaga specjalnej akcji po dodaniu nowego procesu.
+          W SRTF (Shortest Remaining Time First), aktualnie działający
+          proces może zostać przerwany (zatrzymany), aby rozpocząć nowy proces z krótszym pozostałym czasem wykonania.*/
     }
 
     public void runProcess(int quantTime){
-        /*Funkcja runProcess jest częścią algorytmu planowania procesów, Kwantd czasu odnosi się do czasu, który jest przydzielony
-         każdemu procesowi na wykonywanie w jednym cyklu planowania. W tej funkcji, quantTime to argument wejściowy,
-          który reprezentuje kwant czasu.
-          W funkcji runProcess, kwant czasu jest używany do zmniejszenia pozostałego czasu bieżącego procesu.
-          Oznacza to, że każdy proces jest wykonywany przez określony kwant czasu, a następnie jest przerywany
-          i przechodzi do kolejnego procesu w kolejce, jeśli istnieją jeszcze procesy, które czekają na wykonanie.
+        /*  Funkcja runProcess jest częścią algorytmu planowania procesów, Kwantd czasu odnosi się do czasu, który jest przydzielony
+            każdemu procesowi na wykonywanie w jednym cyklu planowania. W tej funkcji, quantTime to argument wejściowy,
+            który reprezentuje kwant czasu.
+            W funkcji runProcess, kwant czasu jest używany do zmniejszenia pozostałego czasu bieżącego procesu.
+            Oznacza to, że każdy proces jest wykonywany przez określony kwant czasu, a następnie jest przerywany
+            i przechodzi do kolejnego procesu w kolejce, jeśli istnieją jeszcze procesy, które czekają na wykonanie.
 
             Jeśli natomiast algorytmem szeregowania jest Round Robin (RR), to po zakończeniu kwantu czasu, sprawdzane jest,
             czy czas wykonania obecnie uruchomionego procesu nie przekroczył maksymalnego czasu jednego "obiegu"
